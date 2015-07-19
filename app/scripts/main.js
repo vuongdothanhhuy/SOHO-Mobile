@@ -99,4 +99,91 @@
   }
 
   // Your custom JavaScript goes here
+  var IMG_NAT_RESOLUTION = '1024',
+      IMG_MODE = {
+        EIT_171: 'http://sohowww.nascom.nasa.gov/data/realtime/eit_171/' + IMG_NAT_RESOLUTION + '/latest.jpg',
+        EIT_195: 'http://sohowww.nascom.nasa.gov/data/realtime/eit_195/' + IMG_NAT_RESOLUTION + '/latest.jpg',
+        EIT_284: 'http://sohowww.nascom.nasa.gov/data/realtime/eit_284/' + IMG_NAT_RESOLUTION + '/latest.jpg',
+        EIT_304: 'http://sohowww.nascom.nasa.gov/data/realtime/eit_304/' + IMG_NAT_RESOLUTION + '/latest.jpg',
+        SDOHMI_CONTINUUM: 'http://sohowww.nascom.nasa.gov/data/realtime/hmi_igr/' + IMG_NAT_RESOLUTION + '/latest.jpg',
+        SDOHMI_MAGNETOGRAM: 'http://sohowww.nascom.nasa.gov/data/realtime/hmi_mag/' + IMG_NAT_RESOLUTION + '/latest.jpg',
+        LASCO_C2: 'http://sohowww.nascom.nasa.gov/data/realtime/c2/' + IMG_NAT_RESOLUTION + '/latest.gif',
+        LASCO_C3: 'http://sohowww.nascom.nasa.gov/data/realtime/c3/' + IMG_NAT_RESOLUTION + '/latest.gif',
+      },
+      IMG_NAME = {
+        EIT_171: 'EIT 171',
+        EIT_195: 'EIT 195',
+        EIT_284: 'EIT 284',
+        EIT_304: 'EIT 304',
+        SDOHMI_CONTINUUM: 'SDO/HMI Continuum',
+        SDOHMI_MAGNETOGRAM: 'SDO/HMI Magnetogram',
+        LASCO_C2: 'LASCO C2',
+        LASCO_C3: 'LASCO C3',
+      },
+      TIME_REFRESH_IN_SECONDS = 60,
+      REFRESH_STR = (function () {
+        return '?' + new Date().getTime();
+      } ()),
+      timer;
+
+  function setTimer() {
+    setInterval(changeImg, TIME_REFRESH_IN_SECONDS * 1000);
+  }
+
+  function resetTimer() {
+    cancelTimer();
+    setTimer();
+  }
+
+  function cancelTimer() {
+    if (timer) {
+      clearInterval(timer);
+    }
+  }
+
+  function resetDate() {
+    var updatedAt = document.getElementById('updated-at'),
+        updatedAtNewValue = new Date(),
+        nextUpdated = document.getElementById('next-refresh'),
+        nextUpdatedNewValue = new Date(new Date().setSeconds(TIME_REFRESH_IN_SECONDS));
+    updatedAt.innerHTML = updatedAtNewValue;
+    nextUpdated.innerHTML = nextUpdatedNewValue;
+  }
+
+  function changeImg() {
+    var imgTag = document.getElementById('soho-image');
+    imgTag.src = imgTag.src + REFRESH_STR;
+    resetDate();
+  }
+
+  function setHeader(mode) {
+    var header = document.getElementById('header');
+    header.innerHTML = IMG_NAME[mode] || 'UNKNOWN';
+  }
+
+  function setImg(mode) {
+    var imgTag = document.getElementById('soho-image');
+    imgTag.src = IMG_MODE[mode] || '';
+  }
+
+  function setMode(mode) {
+    setHeader(mode);
+    setImg(mode);
+    resetDate();
+    resetTimer();
+  }
+
+  function eventHooker() {
+    var menuItems = document.getElementsByClassName('menu-item-click');
+    for (var i = 0, len = menuItems.length; i < len; i++) {
+      menuItems[i].addEventListener('click', function () {
+        setMode(this.getAttribute('data-value'));
+      });
+    }
+  }
+
+  //call
+  resetDate();
+  setTimer();
+  eventHooker();
 })();
